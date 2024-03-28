@@ -1,0 +1,59 @@
+<html>
+<head>
+<title>test.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #6aab73;}
+.s4 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+test.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">cv2</span>
+<span class="s0">import </span><span class="s1">numpy </span><span class="s0">as </span><span class="s1">np</span>
+<span class="s0">from </span><span class="s1">keras</span><span class="s2">.</span><span class="s1">models </span><span class="s0">import </span><span class="s1">load_model</span>
+
+<span class="s1">model </span><span class="s2">= </span><span class="s1">load_model</span><span class="s2">(</span><span class="s3">'model_file.h5'</span><span class="s2">)</span>
+
+
+<span class="s1">video </span><span class="s2">= </span><span class="s1">cv2</span><span class="s2">.</span><span class="s1">VideoCapture</span><span class="s2">(</span><span class="s4">0</span><span class="s2">)</span>
+
+<span class="s1">faceDetect </span><span class="s2">= </span><span class="s1">cv2</span><span class="s2">.</span><span class="s1">CascadeClassifier</span><span class="s2">(</span><span class="s3">'haarcascade_frontalface_default.xml'</span><span class="s2">)</span>
+
+
+<span class="s1">labels_dict </span><span class="s2">= {</span><span class="s4">0</span><span class="s2">:</span><span class="s3">'Angry'</span><span class="s2">,</span><span class="s4">1</span><span class="s2">:</span><span class="s3">'Disgust'</span><span class="s2">,</span><span class="s4">2</span><span class="s2">:</span><span class="s3">'Fear'</span><span class="s2">,</span><span class="s4">3</span><span class="s2">:</span><span class="s3">'Happy'</span><span class="s2">,</span><span class="s4">4</span><span class="s2">:</span><span class="s3">'Neutral'</span><span class="s2">,</span><span class="s4">5</span><span class="s2">:</span><span class="s3">'Sad'</span><span class="s2">}</span>
+
+<span class="s0">while True</span><span class="s2">:</span>
+    <span class="s1">ret</span><span class="s2">, </span><span class="s1">frame </span><span class="s2">= </span><span class="s1">video</span><span class="s2">.</span><span class="s1">read</span><span class="s2">()</span>
+    <span class="s1">gray </span><span class="s2">= </span><span class="s1">cv2</span><span class="s2">.</span><span class="s1">cvtColor</span><span class="s2">(</span><span class="s1">frame</span><span class="s2">, </span><span class="s1">cv2</span><span class="s2">.</span><span class="s1">COLOR_BGR2GRAY</span><span class="s2">)</span>
+    <span class="s1">faces </span><span class="s2">= </span><span class="s1">faceDetect</span><span class="s2">.</span><span class="s1">detectMultiScale</span><span class="s2">(</span><span class="s1">gray</span><span class="s2">, </span><span class="s4">1.3</span><span class="s2">, </span><span class="s4">3</span><span class="s2">)</span>
+    <span class="s0">for </span><span class="s1">x</span><span class="s2">,</span><span class="s1">y</span><span class="s2">,</span><span class="s1">w</span><span class="s2">,</span><span class="s1">h </span><span class="s0">in </span><span class="s1">faces </span><span class="s2">:</span>
+        <span class="s1">sub_face_img </span><span class="s2">= </span><span class="s1">gray</span><span class="s2">[</span><span class="s1">y</span><span class="s2">:</span><span class="s1">y </span><span class="s2">+ </span><span class="s1">h</span><span class="s2">, </span><span class="s1">x</span><span class="s2">:</span><span class="s1">x </span><span class="s2">+ </span><span class="s1">w</span><span class="s2">]</span>
+        <span class="s1">resized </span><span class="s2">= </span><span class="s1">cv2</span><span class="s2">.</span><span class="s1">resize</span><span class="s2">(</span><span class="s1">sub_face_img</span><span class="s2">, (</span><span class="s4">48</span><span class="s2">, </span><span class="s4">48</span><span class="s2">))</span>
+        <span class="s1">normalize </span><span class="s2">= </span><span class="s1">resized </span><span class="s2">/ </span><span class="s4">255.0</span>
+        <span class="s1">reshaped </span><span class="s2">= </span><span class="s1">np</span><span class="s2">.</span><span class="s1">reshape</span><span class="s2">(</span><span class="s1">normalize</span><span class="s2">, (</span><span class="s4">1</span><span class="s2">, </span><span class="s4">48</span><span class="s2">, </span><span class="s4">48</span><span class="s2">, </span><span class="s4">1</span><span class="s2">))</span>
+        <span class="s1">result </span><span class="s2">= </span><span class="s1">model</span><span class="s2">.</span><span class="s1">predict</span><span class="s2">(</span><span class="s1">reshaped</span><span class="s2">)</span>
+        <span class="s1">label </span><span class="s2">= </span><span class="s1">np</span><span class="s2">.</span><span class="s1">argmax</span><span class="s2">(</span><span class="s1">result</span><span class="s2">, </span><span class="s1">axis</span><span class="s2">=</span><span class="s4">1</span><span class="s2">)[</span><span class="s4">0</span><span class="s2">]</span>
+        <span class="s1">print</span><span class="s2">(</span><span class="s1">label</span><span class="s2">)</span>
+        <span class="s1">cv2</span><span class="s2">.</span><span class="s1">rectangle</span><span class="s2">(</span><span class="s1">frame</span><span class="s2">, (</span><span class="s1">x</span><span class="s2">, </span><span class="s1">y</span><span class="s2">), (</span><span class="s1">x </span><span class="s2">+ </span><span class="s1">w</span><span class="s2">, </span><span class="s1">y </span><span class="s2">+ </span><span class="s1">h</span><span class="s2">), (</span><span class="s4">0</span><span class="s2">, </span><span class="s4">0</span><span class="s2">, </span><span class="s4">225</span><span class="s2">), </span><span class="s4">1</span><span class="s2">)</span>
+        <span class="s1">cv2</span><span class="s2">.</span><span class="s1">rectangle</span><span class="s2">(</span><span class="s1">frame</span><span class="s2">, (</span><span class="s1">x</span><span class="s2">, </span><span class="s1">y</span><span class="s2">), (</span><span class="s1">x </span><span class="s2">+ </span><span class="s1">w</span><span class="s2">, </span><span class="s1">y </span><span class="s2">+ </span><span class="s1">h</span><span class="s2">), (</span><span class="s4">50</span><span class="s2">, </span><span class="s4">50</span><span class="s2">, </span><span class="s4">255</span><span class="s2">), </span><span class="s4">2</span><span class="s2">)</span>
+        <span class="s1">cv2</span><span class="s2">.</span><span class="s1">rectangle</span><span class="s2">(</span><span class="s1">frame</span><span class="s2">, (</span><span class="s1">x</span><span class="s2">, </span><span class="s1">y </span><span class="s2">- </span><span class="s4">40</span><span class="s2">), (</span><span class="s1">x </span><span class="s2">+ </span><span class="s1">w</span><span class="s2">, </span><span class="s1">y</span><span class="s2">), (</span><span class="s4">50</span><span class="s2">, </span><span class="s4">50</span><span class="s2">, </span><span class="s4">255</span><span class="s2">), -</span><span class="s4">1</span><span class="s2">)</span>
+        <span class="s1">cv2</span><span class="s2">.</span><span class="s1">putText</span><span class="s2">(</span><span class="s1">frame</span><span class="s2">, </span><span class="s1">labels_dict</span><span class="s2">[</span><span class="s1">label</span><span class="s2">], (</span><span class="s1">x</span><span class="s2">, </span><span class="s1">y </span><span class="s2">- </span><span class="s4">10</span><span class="s2">), </span><span class="s1">cv2</span><span class="s2">.</span><span class="s1">FONT_HERSHEY_SIMPLEX</span><span class="s2">, </span><span class="s4">0.8</span><span class="s2">, (</span><span class="s4">255</span><span class="s2">, </span><span class="s4">255</span><span class="s2">, </span><span class="s4">255</span><span class="s2">), </span><span class="s4">2</span><span class="s2">)</span>
+
+        <span class="s1">cv2</span><span class="s2">.</span><span class="s1">imshow</span><span class="s2">(</span><span class="s3">&quot;Frame&quot;</span><span class="s2">, </span><span class="s1">frame</span><span class="s2">)</span>
+        <span class="s1">k </span><span class="s2">= </span><span class="s1">cv2</span><span class="s2">.</span><span class="s1">waitKey</span><span class="s2">(</span><span class="s4">1</span><span class="s2">)</span>
+        <span class="s0">if </span><span class="s1">k</span><span class="s2">==</span><span class="s1">ord</span><span class="s2">(</span><span class="s3">'q'</span><span class="s2">):</span>
+            <span class="s0">break</span>
+
+    <span class="s1">video</span><span class="s2">.</span><span class="s1">release</span><span class="s2">()</span>
+    <span class="s1">cv2</span><span class="s2">.</span><span class="s1">destroyAllWindows</span><span class="s2">()</span>
+</pre>
+</body>
+</html>
